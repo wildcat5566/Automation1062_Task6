@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Task6</title>
+<body>
+<h1 align="center">Task6</h1>
+<style>
+table, th, td {
+    border: 1px solid black;
+}
+</style>
+<h3 align="center"> IO State Display</h3>         <!-- Title for 1st table -->
+                                         <!-- 1st table: display IO states -->
+<table id="display" border="1" cellpadding="2" cellspacing="2" align="center">
+    <tr>
+        <th>IO State Variable</th>
+        <th>Value</th>
+    </tr>
+    <tr align="center">
+        <td>Led</td>
+        <td>  </td>
+    </tr>
+    <tr align="center">
+        <td>Button</td>
+        <td>  </td>
+    </tr>
+    <tr align="center">
+        <td>Color</td>
+        <td>  </td>
+    </tr>
+</table>
+<br/>
+
+<h3 align="center"> IO Control Interface</h3>                                         <!-- Title for 2nd table -->
+                                                                        <!-- 2nd table: IO (Led) control panel -->
+<table id="control" border="1" cellpadding="2" cellspacing="2" align="center">
+    <tr>
+        <th>Plant</th>
+        <th colspan="2">Control</th>
+    </tr>
+    <tr>
+        <td>Led Control</td>
+        <td><button onclick="LedSwitchOn()">Led On</button></td>    <!-- event handler assigned to 'On' button -->
+        <td><button onclick="LedSwitchOff()">Led Off</button></td> <!-- event handler assigned to 'Off' button -->
+    </tr>
+</table>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+             var socket = io.connect();                                    //Connect to socket.io in .js script
+
+             function LedSwitchOn(){                                       //function connected to button click event
+			    socket.emit('OnClicked');                                  //emit event 'OnClicked' to socket
+			 }
+			 function LedSwitchOff(){
+			    socket.emit('OffClicked');
+			 }
+             //when we receive ledUpdate, do this
+			 socket.on('ledUpdate', function(data){                        //data: retrieved value from .js script
+			    var x = document.getElementById("display").rows[1].cells;  //Specify 1st row of the table "display"
+                x[1].innerHTML = data;                                     //Store value into the 1st column (cell)
+			 });
+
+             var update = setInterval(Timer, 1000);                        //Update once per second
+             function Timer(){                                             //Periodically called function
+                var socket = io.connect();
+			    socket.on('buttonUpdate', function(data){
+			        var x = document.getElementById("display").rows[2].cells;
+                    x[1].innerHTML = data;
+			    });
+			    socket.on('colorUpdate', function(data){
+			        var x = document.getElementById("display").rows[3].cells;
+                    x[1].innerHTML = data;
+			    });
+             }
+</script>
+</body>
+</html>
